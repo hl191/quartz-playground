@@ -1,5 +1,6 @@
 package at.home.scheduling;
 
+import at.home.converter.DateConverter;
 import org.quartz.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,9 +12,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.Date;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 public class JobSchedulingService {
@@ -25,15 +28,19 @@ public class JobSchedulingService {
 
     @PostMapping("schedule")
     public void schedule(@RequestParam String jobKey,
-                         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTime) throws
-                                                                                                                   SchedulerException {
-        JobDetail job = Objects.requireNonNull(scheduler.getJobDetail(new JobKey(jobKey)));
-        Trigger trigger = TriggerBuilder.newTrigger()
-                                        .startAt(Date.from(dateTime.toInstant(OffsetDateTime.now().getOffset())))
-                                        .modifiedByCalendar(HolidayService.HOLIDAYS_CALENDAR_NAME)
-                                        .forJob(job)
-                                        .build();
-
+                         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDateTime,
+                         @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) Optional<LocalDateTime> endDateTime,
+                         @RequestParam(required = false) Optional<Integer> repeatEveryXDay) throws SchedulerException {
+        JobDetail job = getJobDetailForKey(jobKey);
+        TriggerBuilder<Trigger> triggerBuilder = TriggerBuilder.newTrigger()
+                                                               .modifiedByCalendar(HolidayService.HOLIDAYS_CALENDAR_NAME)
+                                                               .forJob(job)
+                                                               .startAt(DateConverter.from(startDateTime));
+        endDateTime.ifPresent(localDateTime -> triggerBuilder.endAt(DateConverter.from(localDateTime)));
+        repeatEveryXDay.ifPresent(everyXDay -> triggerBuilder.withSchedule(CalendarIntervalScheduleBuilder.calendarIntervalSchedule()
+                                                                                                          .withIntervalInDays(
+                                                                                                                  everyXDay)));
+        Trigger trigger = triggerBuilder.build();
         LOGGER.info("Scheduled a new trigger name={}", trigger.getKey().getName());
         scheduler.scheduleJob(trigger);
     }
@@ -43,5 +50,18 @@ public class JobSchedulingService {
                                                @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) Date date) throws
                                                                                                                        SchedulerException {
         return scheduler.getCalendar(calendarName).isTimeIncluded(date.getTime());
+    }
+
+    @GetMapping("getExecutionTimesForJob")
+    public List<Date> getExecutionTimesForJob(@RequestParam String jobKey) throws SchedulerException {
+        JobDetail job = getJobDetailForKey(jobKey);
+        return scheduler.getTriggersOfJob(job.getKey())
+                        .stream()
+                        .map(Trigger::getStartTime)
+                        .collect(Collectors.toList());
+    }
+
+    private JobDetail getJobDetailForKey(String jobKey) throws SchedulerException {
+        return Objects.requireNonNull(scheduler.getJobDetail(new JobKey(jobKey)), "JobKey unknown");
     }
 }
