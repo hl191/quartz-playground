@@ -1,0 +1,116 @@
+{
+	"info": {
+		"_postman_id": "50a6a061-d086-4002-9dc8-e4ce859b10e0",
+		"name": "Quartz Playground",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Add Holiday",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/addHoliday?date=01-01-2021",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"addHoliday"
+					],
+					"query": [
+						{
+							"key": "date",
+							"value": "01-01-2021"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Schedule a job",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/schedule?jobKey=Job_1&dateTime=2021-07-13T16:52:00.000+01:00",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"schedule"
+					],
+					"query": [
+						{
+							"key": "jobKey",
+							"value": "Job_1"
+						},
+						{
+							"key": "dateTime",
+							"value": "2021-07-13T16:52:00.000+01:00"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Check if Calendar contains a date",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/checkDateIncludedInCalendar?calendarName=holidays&date=01-01-2021",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"checkDateIncludedInCalendar"
+					],
+					"query": [
+						{
+							"key": "calendarName",
+							"value": "holidays"
+						},
+						{
+							"key": "date",
+							"value": "01-01-2021"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "e0cd60cf-11fe-4cd1-9c78-a3f9d984849e",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "86d79525-2832-4151-83cd-e4c02b4c7b11",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"id": "a97f4893-a5fb-463b-8464-81052af9c027",
+			"key": "host",
+			"value": "localhost:8080"
+		}
+	],
+	"protocolProfileBehavior": {}
+}
