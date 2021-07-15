@@ -1,16 +1,14 @@
-package at.home.scheduling;
+package at.home.scheduling.dynamic;
 
-import at.home.job.Task;
-import org.quartz.JobBuilder;
-import org.quartz.JobDetail;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
+import at.home.job.QuartzTask;
+import org.quartz.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class JobProviderService {
@@ -19,16 +17,18 @@ public class JobProviderService {
 
     static {
         JOBS.add(JobBuilder.newJob()
-                           .ofType(Task.class)
+                           .ofType(QuartzTask.class)
                            .storeDurably()
                            .withIdentity("JOB_NR_1")
                            .withDescription("Job nummeros uno ...")
+                           .setJobData(new JobDataMap(Map.of(QuartzTask.EXECUTION_ID, "1")))
                            .build());
         JOBS.add(JobBuilder.newJob()
-                           .ofType(Task.class)
+                           .ofType(QuartzTask.class)
                            .storeDurably()
                            .withIdentity("JOB_NR_2")
                            .withDescription("Job nummeros dos ...")
+                           .setJobData(new JobDataMap(Map.of(QuartzTask.EXECUTION_ID, "2")))
                            .build());
     }
 

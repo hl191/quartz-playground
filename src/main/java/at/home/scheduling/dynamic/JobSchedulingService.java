@@ -1,4 +1,4 @@
-package at.home.scheduling;
+package at.home.scheduling.dynamic;
 
 import at.home.converter.DateConverter;
 import org.quartz.*;

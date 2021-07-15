@@ -1,4 +1,4 @@
-package at.home.scheduling;
+package at.home.scheduling.dynamic;
 
 import org.quartz.DateBuilder;
 import org.quartz.Scheduler;
