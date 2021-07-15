@@ -18,13 +18,15 @@ public class SpringSchedulingConfiguration {
     /**
      * Using Scheduling Lock Lib:
      * https://github.com/lukas-krecan/ShedLock
+     * <p>
+     * Needs Database Table as defined in schema.sql (is configurable by the library)
      */
     @Bean
     public LockProvider lockProvider(DataSource dataSource) {
         return new JdbcTemplateLockProvider(JdbcTemplateLockProvider.Configuration.builder()
                                                                                   .withJdbcTemplate(new JdbcTemplate(
                                                                                           dataSource))
-                                                                                  .usingDbTime() // Works on Postgres, MySQL, MariaDb, MS SQL, Oracle, DB2, HSQL and H2
+                                                                                  .usingDbTime()
                                                                                   .build());
     }
 }
