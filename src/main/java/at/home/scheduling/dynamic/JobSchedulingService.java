@@ -1,22 +1,32 @@
 package at.home.scheduling.dynamic;
 
-import at.home.converter.DateConverter;
-import org.quartz.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import org.quartz.CalendarIntervalScheduleBuilder;
+import org.quartz.JobDetail;
+import org.quartz.JobKey;
+import org.quartz.Scheduler;
+import org.quartz.SchedulerException;
+import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+import at.home.converter.DateConverter;
 
 @RestController
 public class JobSchedulingService {
@@ -53,12 +63,38 @@ public class JobSchedulingService {
     }
 
     @GetMapping("getExecutionTimesForJob")
-    public List<Date> getExecutionTimesForJob(@RequestParam String jobKey) throws SchedulerException {
+    public List<TriggerExecutionTime> getExecutionTimesForJob(@RequestParam String jobKey) throws SchedulerException {
         JobDetail job = getJobDetailForKey(jobKey);
         return scheduler.getTriggersOfJob(job.getKey())
                         .stream()
-                        .map(Trigger::getStartTime)
+                        .map(i -> new TriggerExecutionTime(i.getKey().toString(), i.getStartTime()))
                         .collect(Collectors.toList());
+    }
+
+    @DeleteMapping("removeExecutionTimeForJob")
+    public void removeExecutionTimeForJob(@RequestParam String jobKey, @RequestParam String triggerKey) throws SchedulerException {
+        JobDetail job = getJobDetailForKey(jobKey);
+        Trigger triggerToRemove = scheduler.getTriggersOfJob(job.getKey()).stream().filter(i -> i.getKey().toString().equals(triggerKey)).findFirst().orElseThrow(() -> new ResponseStatusException(
+            HttpStatus.NOT_FOUND, "TriggerKey not found for job"));
+        scheduler.unscheduleJob(triggerToRemove.getKey());
+    }
+
+    @PostMapping("pauseScheduler")
+    public void pauseScheduler(@RequestParam(required = false) Optional<String> jobKey) throws SchedulerException {
+        if (jobKey.isPresent()) {
+            scheduler.pauseJob(getJobDetailForKey(jobKey.get()).getKey());
+        } else {
+            scheduler.pauseAll();
+        }
+    }
+
+    @PostMapping("resumeScheduler")
+    public void resumeScheduler(@RequestParam(required = false) Optional<String> jobKey) throws SchedulerException {
+        if (jobKey.isPresent()) {
+            scheduler.resumeJob(getJobDetailForKey(jobKey.get()).getKey());
+        } else {
+            scheduler.resumeAll();
+        }
     }
 
     private JobDetail getJobDetailForKey(String jobKey) throws SchedulerException {

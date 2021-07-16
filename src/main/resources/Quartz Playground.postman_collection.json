@@ -1,6 +1,6 @@
 {
 	"info": {
-		"_postman_id": "50a6a061-d086-4002-9dc8-e4ce859b10e0",
+		"_postman_id": "a89aa7b6-1eb7-46c7-9362-6bc112f99611",
 		"name": "Quartz Playground",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
@@ -34,7 +34,7 @@
 				"method": "POST",
 				"header": [],
 				"url": {
-					"raw": "{{host}}/schedule?jobKey=JOB_NR_1&startDateTime=2021-07-13T18:19:00.000-01:00",
+					"raw": "{{host}}/schedule?jobKey=JOB_NR_1&startDateTime=2021-07-16T14:48:00.000-01:00",
 					"host": [
 						"{{host}}"
 					],
@@ -47,12 +47,60 @@
 							"value": "JOB_NR_1"
 						},
 						{
-							"key": "startDateTime",
-							"value": "2021-07-13T18:19:00.000-01:00"
-						},
-						{
 							"key": "endDateTime",
 							"value": "2021-07-13T18:22:00.000-01:00",
+							"disabled": true
+						},
+						{
+							"key": "startDateTime",
+							"value": "2021-07-16T14:48:00.000-01:00"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Pause Scheduler",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/pauseScheduler",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"pauseScheduler"
+					],
+					"query": [
+						{
+							"key": "jobKey",
+							"value": "JOB_NR_1",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Resume Scheduler",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/resumeScheduler",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"resumeScheduler"
+					],
+					"query": [
+						{
+							"key": "jobKey",
+							"value": "JOB_NR_1",
 							"disabled": true
 						}
 					]
@@ -109,13 +157,39 @@
 				}
 			},
 			"response": []
+		},
+		{
+			"name": "Remove Execution Time",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{host}}/removeExecutionTimeForJob?jobKey=JOB_NR_1&triggerKey=DEFAULT.6da64b5bd2ee-d364b155-bf6c-43aa-94fe-61badc9d9355",
+					"host": [
+						"{{host}}"
+					],
+					"path": [
+						"removeExecutionTimeForJob"
+					],
+					"query": [
+						{
+							"key": "jobKey",
+							"value": "JOB_NR_1"
+						},
+						{
+							"key": "triggerKey",
+							"value": "DEFAULT.6da64b5bd2ee-d364b155-bf6c-43aa-94fe-61badc9d9355"
+						}
+					]
+				}
+			},
+			"response": []
 		}
 	],
 	"event": [
 		{
 			"listen": "prerequest",
 			"script": {
-				"id": "e0cd60cf-11fe-4cd1-9c78-a3f9d984849e",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -125,7 +199,6 @@
 		{
 			"listen": "test",
 			"script": {
-				"id": "86d79525-2832-4151-83cd-e4c02b4c7b11",
 				"type": "text/javascript",
 				"exec": [
 					""
@@ -135,10 +208,8 @@
 	],
 	"variable": [
 		{
-			"id": "5e1e8144-6340-4f9d-97a0-4e0c83f41c66",
 			"key": "host",
 			"value": "localhost:8080"
 		}
-	],
-	"protocolProfileBehavior": {}
+	]
 }
